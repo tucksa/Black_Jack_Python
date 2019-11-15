@@ -32,16 +32,36 @@ class Player:
         self.wins = wins
     def bet(self, amount):
         return amount <= self.account
-        
+
 #function to ask the player what they would like to bet. check to ensure this does not exceed the total money in the player's account
 
-#function to ask the player if they would line to stand or hit
+#function to ask the player if they would like to stand or hit
+def stand_hit():
+    return input('Would you like to stand or hit? (s/h)')
 
 #function to randomly draw a card from the deck
+def draw(deck):
+    import random
+    index = random.randint(0,51)
+    return deck[index]
 
-#function for dealer play (enacted if the player chooses stand) the dealer will continue to draw from the deck until their cards beat the player total or they bust.
+#function to check that the randomly drawn card has not already been pulled- (check against dealer.cards and player.cards). if so re-draw
 
-#function to hit. if the player chooses to hit this function will randomly draw a card from the deck and add it to the players card tracker and update their total count
+#function for dealer play (enacted if the player chooses stand) the dealer will continue to draw from the deck until their cards beat the player total or they bust. 
+
+#function to hit. if the player chooses to hit this function will determine the count of the card to be added to the player object
+def hit(card):
+    if card.face == 'King':
+        value = 13
+    elif card.face == 'Queen':
+        value = 12
+    elif card.face == 'Jack':
+        value = 11
+    elif card.face in [2,3,4,5,6,7,8,9,10]:
+        value = int(card.face)
+    else:
+        value = [1,11]
+    return value
 
 #function to check who wins. if the player hits 21 then they win. If the player exceeds 21 then they lose (bust) 
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
