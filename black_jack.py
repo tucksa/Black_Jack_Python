@@ -1,4 +1,16 @@
 # display black jack table showing one card up from dealer and one card down from dealer then two cards up for player
+def display_initial(dealer,player):
+    print('Dealer:')
+    print('---------        ---------')
+    print('|        |        |        |')
+    print(f'|     {dealer.cards[0].face}     |        |        |')
+    print('|   of   |        |        |')
+    print(f'|     {dealer.cards[0].suit}     |        |        |')
+    print('|         |        |        |')
+    print('---------        ---------')
+    #insert loop through player cards and display all face up
+
+# create a second display function for when its the dealers turn
 
 #create a card object
 class Card:
@@ -34,6 +46,11 @@ class Player:
         return amount <= self.account
 
 #function to ask the player what they would like to bet. check to ensure this does not exceed the total money in the player's account
+def bet(player):
+    amount = int(input('How much would you like to bet? '))
+    while amount > player.account:
+        input(f'Sorry, this amount exceeds your funds of {player.account}. What would you like to bet? ')
+    return amount 
 
 #function to ask the player if they would like to stand or hit
 def stand_hit():
@@ -48,6 +65,18 @@ def draw(deck):
 #function to check that the randomly drawn card has not already been pulled- (check against dealer.cards and player.cards). if so re-draw
 
 #function for dealer play (enacted if the player chooses stand) the dealer will continue to draw from the deck until their cards beat the player total or they bust. 
+def dealer_turn(player, dealer, deck):
+    while True:
+        if dealer.total <= player.total and dealer.total < 21:
+            card = draw(deck)
+            value = hit(card)
+            if value != [1,11]:
+                dealer.total += value
+            else:
+                value = ace(dealer,deck)
+                dealer.total += value
+        else:
+            return dealer.total
 
 #function to hit. if the player chooses to hit this function will determine the count of the card to be added to the player object
 def hit(card):
@@ -63,5 +92,25 @@ def hit(card):
         value = [1,11]
     return value
 
+#function to determine which Ace value to use
+def ace(player, deck):
+    value = [1,11]
+    if player.total + 11 > 21:
+        value = 1
+    else:
+        value = 11
+    return value
+
 #function to check who wins. if the player hits 21 then they win. If the player exceeds 21 then they lose (bust) 
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
+def win_check(dealer,player):
+    winner = ''
+    if dealer.total == 21 and player.total != 21:
+        winner = 'dealer'
+    elif player.total > 21:
+        winner = 'dealer'
+    elif 21 - dealer.total < 21 - player.total:
+        winner = 'dealer'
+    else:
+        winner = 'player'
+    return winner
