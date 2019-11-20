@@ -37,11 +37,24 @@ class Dealer:
 
 #create a player object- will need to know the cards they have, the total count for the cards, the amount of money to bet and if you have time a win streak tracker (if they win 3 in a row)
 class Player:
-    def __init__(self, cards, total, account, wins):
+    def __init__(self, cards, account, wins):
         self.cards = cards
-        self.total = total
         self.account = account
         self.wins = wins
+    def total(self):
+        total = 0
+        for card in self.cards:
+            if card.face == 'King':
+                total += 13
+            elif card.face == 'Queen':
+                total += 12
+            elif card.face == 'Jack':
+                total += 11
+            elif card.face in [2,3,4,5,6,7,8,9,10]:
+                total += card.face
+            else:
+                continue
+        return total
     def bet(self, amount):
         return amount <= self.account
 
@@ -73,7 +86,7 @@ def dealer_turn(player, dealer, deck):
             if value != [1,11]:
                 dealer.total += value
             else:
-                value = ace(dealer,deck)
+                value = ace(dealer)
                 dealer.total += value
         else:
             return dealer.total
@@ -93,13 +106,34 @@ def hit(card):
     return value
 
 #function to determine which Ace value to use
-def ace(player, deck):
-    value = [1,11]
-    if player.total + 11 > 21:
-        value = 1
+def ace(player):
+    ace_count = 0
+    value = 0
+    for card in player.cards:
+        if card.face == 'Ace':
+            ace_count += 1
+    if ace_count == 1:
+        if player.total + 11 <= 21:
+            value = 11
+        else:
+            value = 1
+    elif ace_count == 2:
+        if player.total + 12 <= 21:
+            value = 12
+        else:
+            value = 2
+    elif ace_count == 3:
+        if player.total + 13 <= 21:
+            value = 13
+        else:
+            value = 3
     else:
-        value = 11
-    return value
+        if player.total + 14 <= 21:
+            value = 14
+        else:
+            value = 4
+    player.total += value
+    return value, player.total
 
 #function to check who wins. if the player hits 21 then they win. If the player exceeds 21 then they lose (bust) 
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
@@ -114,3 +148,10 @@ def win_check(dealer,player):
     else:
         winner = 'player'
     return winner
+
+card1 = Card('Hearts', 'King')
+card2 = Card('Hearts', 5)
+
+Sarah = Player([card1, card2], 100, 0)
+
+print(Sarah.total())
