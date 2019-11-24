@@ -235,13 +235,16 @@ def play():
         if player_total < 21:
             player_turn = stand_hit()
         elif player_total == 21: 
-            print('Congrantulations!!! You hit 21')
+            print(f'Congrantulations!!! You hit 21. You won ${bet_amount}')
             player_turn = 's'
             winner = 'player'
+            player.wins += 1
+            player.account += bet_amount
         else:
-            print('BUST.... you lose')
+            print(f'BUST.... you lost ${bet_amount}')
             player_turn = 's'
             winner = 'dealer'
+            player.account -= bet_amount
     if winner == '' and player_total <= 21:
         print('Ok, time for the dealer to go')
         dealer_turn_display(dealer, player_total)
@@ -249,12 +252,30 @@ def play():
         print(f'Dealer- {dealer_total}')
         winner = win_check(dealer_total, player_total)
         print(f'The winner is the {winner}')
+        if winner == 'player':
+            player.wins += 1
+            print(f'You won ${bet_amount}')
+            player.account += bet_amount
+        else:
+            print(f'You lost ${bet_amount}')
+            player.account -= bet_amount  
     elif winner == '' and player_total == 21:
-        print('Wow, lady luck is on your side- WINNER')
+        print(f'Wow, lady luck is on your side- WINNER ${bet_amount}')
         winner = 'player'
+        player.wins += 1
+        player.account += bet_amount
     elif winner == '' and player_total > 21:
-        print('You should rethink this game.... started out with a bust- you lose')
+        print(f'You should rethink this game.... started out with a bust- you lost ${bet_amount}')
+        player.account -= bet_amount
     else:
         print(f'The winner is the {winner}')
+        if winner == 'player':
+            player.wins += 1
+            print(f'You won ${bet_amount}')
+            player.account += bet_amount
+        else:
+            print(f'You lost ${bet_amount}')
+            player.account -= bet_amount  
+    print(player.account)
 
 play()
