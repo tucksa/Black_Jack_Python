@@ -151,13 +151,14 @@ def draw(deck, existing):
 
 #function for dealer play (enacted if the player chooses stand) the dealer will continue to draw from the deck until their cards beat the player total or they bust. 
 def dealer_turn(dealer, player_total, deck, existing_cards):
-    while True:
+    dealer_total = ace(dealer)
+    while dealer_total <= player_total and dealer_total < 21:
+        card, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        dealer.cards.append(card)
         dealer_total = ace(dealer)
-        if dealer_total <= player_total and dealer_total < 21:
-            added_card = draw(deck, existing_cards)
-            dealer.cards.append(added_card)
-        else:
-            return dealer_total
+        dealer_turn_display(dealer, player_total)
+    return dealer_total
 
 
 #function to determine which Ace value to use
@@ -195,11 +196,7 @@ def ace(player):
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
 def win_check(dealer,player):
     winner = ''
-    if dealer.total == 21 and player.total != 21:
-        winner = 'dealer'
-    elif player.total > 21:
-        winner = 'dealer'
-    elif 21 - dealer.total < 21 - player.total:
+    if 21 - dealer < 21 - player and dealer <= 21:
         winner = 'dealer'
     else:
         winner = 'player'
@@ -213,10 +210,14 @@ Sarah = Player([card1, card2], 100, 0)
 def play():
     deck = create_deck()
     existing_cards = []
-    dealer_card1, existing_cards = draw(deck, existing_cards)
-    dealer_card2, existing_cards = draw(deck, existing_cards)
-    player_card1, existing_cards = draw(deck, existing_cards)
-    player_card2, existing_cards = draw(deck, existing_cards)
+    dealer_card1, added_card = draw(deck, existing_cards)
+    existing_cards.append(added_card)
+    dealer_card2, added_card = draw(deck, existing_cards)
+    existing_cards.append(added_card)
+    player_card1, added_card = draw(deck, existing_cards)
+    existing_cards.append(added_card)
+    player_card2, added_card = draw(deck, existing_cards)
+    existing_cards.append(added_card)
     dealer = Dealer([dealer_card1,dealer_card2])
     player = Player([player_card1, player_card2], 100, 0)
     bet_amount = bet(player)
@@ -226,8 +227,9 @@ def play():
     player_turn = stand_hit()
     player_total = ace(player)
     while player_turn == 'h':
-        added_card, existing_cards = draw(deck, existing_cards)
-        player.cards.append(added_card)
+        card, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        player.cards.append(card)
         display_initial(dealer, player)
         player_total = ace(player)
         if player_total < 21:
@@ -240,10 +242,19 @@ def play():
             print('BUST.... you lose')
             player_turn = 's'
             winner = 'dealer'
-    if winner == '':
+    if winner == '' and player_total <= 21:
         print('Ok, time for the dealer to go')
         dealer_turn_display(dealer, player_total)
         dealer_total = dealer_turn(dealer, player_total, deck, existing_cards)
-        print(dealer_total)
+        print(f'Dealer- {dealer_total}')
+        winner = win_check(dealer_total, player_total)
+        print(f'The winner is the {winner}')
+    elif winner == '' and player_total == 21:
+        print('Wow, lady luck is on your side- WINNER')
+        winner = 'player'
+    elif winner == '' and player_total > 21:
+        print('You should rethink this game.... started out with a bust- you lose')
+    else:
+        print(f'The winner is the {winner}')
 
 play()
