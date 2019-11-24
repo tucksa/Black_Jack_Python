@@ -46,7 +46,29 @@ def display_initial(dealer,player):
         print('------------')
 
 # create a second display function for when its the dealers turn
-
+def dealer_turn_display(dealer, player_total):
+    for i in dealer.cards:
+        print(f'Player total- {player_total}')
+        print('------------')
+        print('|          |')
+        if type(i.face) != int:
+            total_len = 8 - len(i.face)
+        elif i.face == 10:
+            total_len = 6
+        else:
+            total_len = 7
+        face_print = f'|  {i.face}'
+        for _ in range(0,total_len):
+            face_print += ' '
+        print(f'{face_print}|')
+        print('|  of      |')
+        total_len = 8 - len(i.suit)
+        suit_print = f'|  {i.suit}'
+        for _ in range(0,total_len):
+            suit_print += ' '
+        print(f'{suit_print}|')
+        print('|          |')
+        print('------------')
 #create a card object
 class Card:
     def __init__(self,suit,face):
@@ -151,27 +173,27 @@ def ace(player):
         if card.face == 'Ace':
             ace_count += 1
     if ace_count == 1:
-        if player.total + 11 <= 21:
+        if player.total() + 11 <= 21:
             value = 11
         else:
             value = 1
     elif ace_count == 2:
-        if player.total + 12 <= 21:
+        if player.total() + 12 <= 21:
             value = 12
         else:
             value = 2
     elif ace_count == 3:
-        if player.total + 13 <= 21:
+        if player.total() + 13 <= 21:
             value = 13
         else:
             value = 3
-    else:
-        if player.total + 14 <= 21:
+    elif ace_count == 4:
+        if player.total() + 14 <= 21:
             value = 14
         else:
             value = 4
-    player.total += value
-    return value, player.total
+    player.total = player.total() + value
+    return player.total, value
 
 #function to check who wins. if the player hits 21 then they win. If the player exceeds 21 then they lose (bust) 
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
@@ -201,7 +223,18 @@ def play():
     player_card2, existing_cards = draw(deck, existing_cards)
     dealer = Dealer([dealer_card1,dealer_card2])
     player = Player([player_card1, player_card2], 100, 0)
+    bet_amount = bet(player)
+    print(f'Great, there is {bet_amount} on the table')
     display_initial(dealer, player)
-
+    player_turn = stand_hit()
+    while player_turn == 'h':
+        added_card, existing_cards = draw(deck, existing_cards)
+        player.cards.append(added_card)
+        display_initial(dealer, player)
+        player_total, ace_count = ace(player)
+        print(player_total)
+        print(ace_count)
+        player_turn = stand_hit()
+    print('Ok, time for the dealer to go')
 
 play()
