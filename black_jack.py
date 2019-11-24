@@ -244,5 +244,6 @@ def play():
         print('Ok, time for the dealer to go')
         dealer_turn_display(dealer, player_total)
         dealer_total = dealer_turn(dealer, player_total, deck, existing_cards)
+        print(dealer_total)
 
 play()
