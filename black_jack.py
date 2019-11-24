@@ -47,8 +47,8 @@ def display_initial(dealer,player):
 
 # create a second display function for when its the dealers turn
 def dealer_turn_display(dealer, player_total):
+    print(f'Player total- {player_total}')
     for i in dealer.cards:
-        print(f'Player total- {player_total}')
         print('------------')
         print('|          |')
         if type(i.face) != int:
@@ -90,7 +90,6 @@ def create_deck():
 class Dealer:
     def __init__(self, cards):
         self.cards = cards
-
     def total(self):
         total = 0
         for card in self.cards:
@@ -151,49 +150,46 @@ def draw(deck, existing):
 #function to check that the randomly drawn card has not already been pulled- (check against dealer.cards and player.cards). if so re-draw
 
 #function for dealer play (enacted if the player chooses stand) the dealer will continue to draw from the deck until their cards beat the player total or they bust. 
-def dealer_turn(player, dealer, deck):
+def dealer_turn(dealer, player_total, deck, existing_cards):
     while True:
-        if dealer.total <= player.total and dealer.total < 21:
-            card = draw(deck)
-            value = hit(card)
-            if value != [1,11]:
-                dealer.total += value
-            else:
-                value = ace(dealer)
-                dealer.total += value
+        dealer_total = ace(dealer)
+        if dealer_total <= player_total and dealer_total < 21:
+            added_card = draw(deck, existing_cards)
+            dealer.cards.append(added_card)
         else:
-            return dealer.total
+            return dealer_total
 
 
 #function to determine which Ace value to use
 def ace(player):
     ace_count = 0
     value = 0
+    player_total = player.total()
     for card in player.cards:
         if card.face == 'Ace':
             ace_count += 1
     if ace_count == 1:
-        if player.total() + 11 <= 21:
+        if player_total + 11 <= 21:
             value = 11
         else:
             value = 1
     elif ace_count == 2:
-        if player.total() + 12 <= 21:
+        if player_total + 12 <= 21:
             value = 12
         else:
             value = 2
     elif ace_count == 3:
-        if player.total() + 13 <= 21:
+        if player_total + 13 <= 21:
             value = 13
         else:
             value = 3
     elif ace_count == 4:
-        if player.total() + 14 <= 21:
+        if player_total + 14 <= 21:
             value = 14
         else:
             value = 4
-    player.total = player.total() + value
-    return player.total, value
+    player_total += value
+    return player_total
 
 #function to check who wins. if the player hits 21 then they win. If the player exceeds 21 then they lose (bust) 
 #once they stand and the dealer turn begins if the dealer goes over 21 then the player wins. if the deal total is closer to 21 than the player then the dealer wins else the dealer loses (bust)
@@ -224,17 +220,29 @@ def play():
     dealer = Dealer([dealer_card1,dealer_card2])
     player = Player([player_card1, player_card2], 100, 0)
     bet_amount = bet(player)
+    winner = ''
     print(f'Great, there is {bet_amount} on the table')
     display_initial(dealer, player)
     player_turn = stand_hit()
+    player_total = ace(player)
     while player_turn == 'h':
         added_card, existing_cards = draw(deck, existing_cards)
         player.cards.append(added_card)
         display_initial(dealer, player)
-        player_total, ace_count = ace(player)
-        print(player_total)
-        print(ace_count)
-        player_turn = stand_hit()
-    print('Ok, time for the dealer to go')
+        player_total = ace(player)
+        if player_total < 21:
+            player_turn = stand_hit()
+        elif player_total == 21: 
+            print('Congrantulations!!! You hit 21')
+            player_turn = 's'
+            winner = 'player'
+        else:
+            print('BUST.... you lose')
+            player_turn = 's'
+            winner = 'dealer'
+    if winner == '':
+        print('Ok, time for the dealer to go')
+        dealer_turn_display(dealer, player_total)
+        dealer_total = dealer_turn(dealer, player_total, deck, existing_cards)
 
 play()
