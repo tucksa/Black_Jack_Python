@@ -276,6 +276,74 @@ def play():
         else:
             print(f'You lost ${bet_amount}')
             player.account -= bet_amount  
-    print(player.account)
-
+    replay = input('Would you like to play again? y/n ')
+    while replay == 'y':
+        existing_cards = []
+        dealer_card1, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        dealer_card2, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        player_card1, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        player_card2, added_card = draw(deck, existing_cards)
+        existing_cards.append(added_card)
+        player.cards = [player_card1, player_card2]
+        dealer.cards = [dealer_card1, dealer_card2]
+        bet_amount = bet(player)
+        winner = ''
+        print(f'Great, there is {bet_amount} on the table')
+        display_initial(dealer, player)
+        player_turn = stand_hit()
+        player_total = ace(player)
+        while player_turn == 'h':
+            card, added_card = draw(deck, existing_cards)
+            existing_cards.append(added_card)
+            player.cards.append(card)
+            display_initial(dealer, player)
+            player_total = ace(player)
+            if player_total < 21:
+                player_turn = stand_hit()
+            elif player_total == 21: 
+                print(f'Congrantulations!!! You hit 21. You won ${bet_amount}')
+                player_turn = 's'
+                winner = 'player'
+                player.wins += 1
+                player.account += bet_amount
+            else:
+                print(f'BUST.... you lost ${bet_amount}')
+                player_turn = 's'
+                winner = 'dealer'
+                player.account -= bet_amount
+        if winner == '' and player_total <= 21:
+            print('Ok, time for the dealer to go')
+            dealer_turn_display(dealer, player_total)
+            dealer_total = dealer_turn(dealer, player_total, deck, existing_cards)
+            print(f'Dealer- {dealer_total}')
+            winner = win_check(dealer_total, player_total)
+            print(f'The winner is the {winner}')
+            if winner == 'player':
+                player.wins += 1
+                print(f'You won ${bet_amount}')
+                player.account += bet_amount
+            else:
+                print(f'You lost ${bet_amount}')
+                player.account -= bet_amount  
+        elif winner == '' and player_total == 21:
+            print(f'Wow, lady luck is on your side- WINNER ${bet_amount}')
+            winner = 'player'
+            player.wins += 1
+            player.account += bet_amount
+        elif winner == '' and player_total > 21:
+            print(f'You should rethink this game.... started out with a bust- you lost ${bet_amount}')
+            player.account -= bet_amount
+        else:
+            print(f'The winner is the {winner}')
+            if winner == 'player':
+                player.wins += 1
+                print(f'You won ${bet_amount}')
+                player.account += bet_amount
+            else:
+                print(f'You lost ${bet_amount}')
+                player.account -= bet_amount  
+        replay = input('Would you like to play again? y/n ')
 play()
